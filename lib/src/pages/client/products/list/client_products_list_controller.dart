@@ -1,13 +1,20 @@
+import "package:app_delivery/src/models/user.dart";
 import "package:app_delivery/src/utils/shared_pref.dart";
 import "package:flutter/material.dart";
+import "package:flutter/widgets.dart";
 
 class ClientProductsListController {
   BuildContext? context;
   SharedPref _sharedPref = SharedPref();
   GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
+  Function? refresh;
 
-  Future? init(BuildContext context) {
+  User? user;
+
+  Future? init(BuildContext context, Function refresh) async {
     this.context = context;
+    user = User.fromJson(await _sharedPref.read('user'));
+    refresh();
   }
 
   void logout() {
@@ -19,5 +26,9 @@ class ClientProductsListController {
 
   void openDrawer() {
     key.currentState?.openDrawer();
+  }
+
+  void goToRoles() {
+    Navigator.pushNamedAndRemoveUntil(context!, 'roles', (route) => false);
   }
 }
