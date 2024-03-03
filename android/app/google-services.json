@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "58149683486",
+    "project_id": "delivery-app-ea504",
+    "storage_bucket": "delivery-app-ea504.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:58149683486:android:681d42cc5f95bc89a9490f",
+        "android_client_info": {
+          "package_name": "com.example.app_delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAbmt5vZKidEwKJFXKk5b4aIvFAzLKxMg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

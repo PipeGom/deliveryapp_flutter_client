@@ -1,9 +1,12 @@
+import "dart:io";
+
 import "package:app_delivery/src/models/response_api.dart";
 import "package:app_delivery/src/models/user.dart";
 import "package:app_delivery/src/provider/users_provider.dart";
 import "package:app_delivery/src/utils/my_snackbar.dart";
 import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
+import "package:image_picker/image_picker.dart";
 
 class RegisterController {
   BuildContext? context;
@@ -16,8 +19,12 @@ class RegisterController {
 
   UsersProvider usersProvider = UsersProvider();
 
-  Future? init(BuildContext context) {
+  File? imageFile;
+  Function? refresh;
+
+  Future? init(BuildContext context, Function refresh) {
     this.context = context;
+    this.refresh = refresh;
     usersProvider.init(context);
   }
 
@@ -76,5 +83,37 @@ class RegisterController {
     if (context != null) {
       Navigator.pop(context!);
     }
+  }
+
+  Future selectImage(ImageSource imageSource) async {
+    final XFile? pickedFile =
+        await ImagePicker().pickImage(source: imageSource);
+    if (pickedFile != null) {
+      imageFile = File(pickedFile.path);
+    }
+    Navigator.pop(context!);
+    refresh!();
+  }
+
+  void showAlertDialog() {
+    Widget galleryButton = ElevatedButton(
+        onPressed: () {
+          selectImage(ImageSource.gallery);
+        },
+        child: Text('GALERIA'));
+    Widget cameraButton = ElevatedButton(
+        onPressed: () {
+          selectImage(ImageSource.camera);
+        },
+        child: Text('CAMERA'));
+    AlertDialog alertDialog = AlertDialog(
+      title: Text('Selecciona tu imagen'),
+      actions: [galleryButton, cameraButton],
+    );
+    showDialog(
+        context: context!,
+        builder: (buildContext) {
+          return alertDialog;
+        });
   }
 }
