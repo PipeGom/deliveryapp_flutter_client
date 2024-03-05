@@ -21,7 +21,7 @@ class ResponseApi {
     required this.success,
   });
 
-  ResponseApi.fromJson(Map<String, dynamic> json) {
+  ResponseApi.fromJson(Map<String?, dynamic> json) {
     message = json["message"];
     error = json["error"];
     success = json["success"];

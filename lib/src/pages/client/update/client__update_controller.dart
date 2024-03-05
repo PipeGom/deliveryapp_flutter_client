@@ -1,21 +1,22 @@
 import "dart:convert";
 import "dart:io";
-
 import "package:app_delivery/src/models/response_api.dart";
 import "package:app_delivery/src/models/user.dart";
 import "package:app_delivery/src/provider/users_provider.dart";
 import "package:app_delivery/src/utils/my_snackbar.dart";
+import "package:app_delivery/src/utils/shared_pref.dart";
 import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
+import "package:fluttertoast/fluttertoast.dart";
 import "package:image_picker/image_picker.dart";
 import "package:sn_progress_dialog/progress_dialog.dart";
 
-class RegisterController {
+class ClientUpdateController {
   BuildContext? context;
   TextEditingController emailController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController lastnameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
+  TextEditingController? nameController = TextEditingController();
+  TextEditingController? lastnameController = TextEditingController();
+  TextEditingController? phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 
@@ -26,40 +27,30 @@ class RegisterController {
 
   ProgressDialog? _progressDialog;
   bool isEnable = true;
+  User? user;
+  SharedPref _sharedPref = new SharedPref();
 
-  Future? init(BuildContext context, Function refresh) {
+  Future? init(BuildContext context, Function refresh) async {
     this.context = context;
     this.refresh = refresh;
     usersProvider.init(context);
     _progressDialog = ProgressDialog(context: context);
+    user = User?.fromJson(await _sharedPref.read('user'));
+
+    nameController!.text = user!.name!;
+    lastnameController!.text = user!.lastname!;
+    phoneController!.text = user!.phone!;
+
+    refresh();
   }
 
-  void register() async {
-    String email = emailController.text.trim();
-    String name = nameController.text.trim();
-    String lastname = lastnameController.text.trim();
-    String phone = phoneController.text.trim();
-    String password = passwordController.text.trim();
-    String confirmpassword = confirmPasswordController.text.trim();
+  void update() async {
+    String name = nameController!.text.trim();
+    String lastname = lastnameController!.text.trim();
+    String phone = phoneController!.text.trim();
 
-    if (email.isEmpty ||
-        name.isEmpty ||
-        lastname.isEmpty ||
-        phone.isEmpty ||
-        password.isEmpty ||
-        confirmpassword.isEmpty) {
+    if (name.isEmpty || lastname.isEmpty || phone.isEmpty) {
       MySnackbar.show(context, 'Debes ingresar todos los campos');
-      return;
-    }
-
-    if (confirmpassword != password) {
-      MySnackbar.show(context, 'Las contraseñas no coinciden');
-      return;
-    }
-
-    if (password.length < 6) {
-      MySnackbar.show(
-          context, ' La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
@@ -71,29 +62,28 @@ class RegisterController {
     _progressDialog!.show(max: 100, msg: 'Espere un momento.. ');
     isEnable = false;
 
-    User user = User(
-        email: email,
-        name: name,
-        lastname: lastname,
-        phone: phone,
-        password: password);
+    User myUser =
+        User(id: user!.id, name: name, lastname: lastname, phone: phone);
 
-    Stream? stream = await usersProvider.createWithImage(user, imageFile);
+    Stream? stream = await usersProvider.update(myUser, imageFile);
 
-    stream!.listen((res) {
+    stream!.listen((res) async {
       //ResponseApi responseApi = await usersProvider.create(user);
       // Cierra el dialogo porque ya se cargo la imagen
       _progressDialog!.close();
 
       ResponseApi responseApi = ResponseApi.fromJson(json.decode(res));
-      print('Respuesta: ${responseApi.toJson()}');
-
-      MySnackbar.show(context, responseApi.message ?? "Error");
+      Fluttertoast.showToast(msg: responseApi.message!);
 
       if (responseApi.success) {
+        user = await usersProvider
+            .getById(myUser!.id!); // Obteniendo el usuario de la base de datos
+        _sharedPref.save(
+            'user', user!.toJson()); // guardar el usuario en sesion
         Future.delayed(Duration(seconds: 3), () {
           if (context != null) {
-            Navigator.pushReplacementNamed(context!, 'login');
+            Navigator.pushNamedAndRemoveUntil(
+                context!, 'client/products/list', (route) => false);
           }
         });
       } else {
