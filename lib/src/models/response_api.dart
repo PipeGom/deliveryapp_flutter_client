@@ -12,7 +12,7 @@ String responseApiToJson(ResponseApi data) => json.encode(data.toJson());
 class ResponseApi {
   String? message;
   String? error;
-  dynamic success;
+  bool? success;
   dynamic data;
 
   ResponseApi({

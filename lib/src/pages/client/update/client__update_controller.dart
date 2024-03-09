@@ -6,19 +6,16 @@ import "package:app_delivery/src/provider/users_provider.dart";
 import "package:app_delivery/src/utils/my_snackbar.dart";
 import "package:app_delivery/src/utils/shared_pref.dart";
 import "package:flutter/material.dart";
-import "package:flutter/widgets.dart";
 import "package:fluttertoast/fluttertoast.dart";
 import "package:image_picker/image_picker.dart";
 import "package:sn_progress_dialog/progress_dialog.dart";
 
 class ClientUpdateController {
   BuildContext? context;
-  TextEditingController emailController = TextEditingController();
+
   TextEditingController? nameController = TextEditingController();
   TextEditingController? lastnameController = TextEditingController();
   TextEditingController? phoneController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
 
   UsersProvider usersProvider = UsersProvider();
 
@@ -33,9 +30,12 @@ class ClientUpdateController {
   Future? init(BuildContext context, Function refresh) async {
     this.context = context;
     this.refresh = refresh;
-    usersProvider.init(context);
+
     _progressDialog = ProgressDialog(context: context);
     user = User?.fromJson(await _sharedPref.read('user'));
+    usersProvider.init(context, sessionUser: user);
+
+    print('Token Enviado ${user!.sessionToken}');
 
     nameController!.text = user!.name!;
     lastnameController!.text = user!.lastname!;
@@ -54,16 +54,15 @@ class ClientUpdateController {
       return;
     }
 
-    if (imageFile == null) {
-      MySnackbar.show(context!, 'Selecciona una imagen');
-      return;
-    }
-
     _progressDialog!.show(max: 100, msg: 'Espere un momento.. ');
     isEnable = false;
 
-    User myUser =
-        User(id: user!.id, name: name, lastname: lastname, phone: phone);
+    User myUser = User(
+        id: user!.id,
+        name: name,
+        lastname: lastname,
+        phone: phone,
+        image: user!.image);
 
     Stream? stream = await usersProvider.update(myUser, imageFile);
 
@@ -75,9 +74,10 @@ class ClientUpdateController {
       ResponseApi responseApi = ResponseApi.fromJson(json.decode(res));
       Fluttertoast.showToast(msg: responseApi.message!);
 
-      if (responseApi.success) {
+      if (responseApi.success == true) {
         user = await usersProvider
             .getById(myUser!.id!); // Obteniendo el usuario de la base de datos
+        print('Usuario obtenido: ${user!.toJson()}');
         _sharedPref.save(
             'user', user!.toJson()); // guardar el usuario en sesion
         Future.delayed(Duration(seconds: 3), () {

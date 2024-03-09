@@ -22,7 +22,7 @@ class LoginController {
 
     print('Usuario: ${user.toJson()}');
 
-    if (user.sessionToken != null) {
+    if (user?.sessionToken != null) {
       if (user.roles != null && user.roles!.length > 1) {
         Navigator.pushNamedAndRemoveUntil(context, 'roles', (route) => false);
       } else {
@@ -49,7 +49,7 @@ class LoginController {
     print('Respuesta object: ${responseApi}');
     print('Respuesta: ${responseApi.toJson()}');
 
-    if (responseApi.success) {
+    if (responseApi.success == true) {
       User user = User.fromJson(responseApi.data);
       _sharedPref.save('user', user.toJson());
 

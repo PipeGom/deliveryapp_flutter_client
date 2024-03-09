@@ -19,8 +19,8 @@ class ClientProductsListController {
 
   void logout() {
     if (context != null) {
-      _sharedPref
-          .logout(context!); // Using null-aware operator to assert non-null
+      _sharedPref.logout(context!,
+          user!.id as String); // Using null-aware operator to assert non-null
     }
   }
 

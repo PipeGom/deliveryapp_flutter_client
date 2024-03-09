@@ -90,8 +90,8 @@ class RegisterController {
 
       MySnackbar.show(context, responseApi.message ?? "Error");
 
-      if (responseApi.success) {
-        Future.delayed(Duration(seconds: 3), () {
+      if (responseApi.success == true) {
+        Future.delayed(const Duration(seconds: 3), () {
           if (context != null) {
             Navigator.pushReplacementNamed(context!, 'login');
           }
