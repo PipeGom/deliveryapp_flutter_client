@@ -104,12 +104,14 @@ class _RestaurantOrdersListPageState extends State<RestaurantOrdersListPage> {
                 ],
               )),
           ListTile(
-            title: Text('Editar perfil'),
-            trailing: Icon(Icons.edit_outlined),
+            onTap: _con.goToCategoryCreate,
+            title: Text('Crear categoria'),
+            trailing: Icon(Icons.list_alt),
           ),
           ListTile(
-            title: Text('Mis pedidos'),
-            trailing: Icon(Icons.shopping_cart_outlined),
+            onTap: _con.goToProductCreate,
+            title: Text('Crear producto'),
+            trailing: Icon(Icons.local_pizza),
           ),
           _con.user != null
               ? _con.user!.roles!.length > 1
